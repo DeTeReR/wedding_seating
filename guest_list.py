@@ -1,14 +1,28 @@
 from collections import namedtuple, defaultdict
 
-Guest = namedtuple('Guest', ['name', 'sex'])
+Guest = namedtuple('Guest', ['name'])
 
 
 class GuestList(object):
+    _INPUT_GRID_START_ROW = 2
+    _INPUT_GRID_START_COL = 0
+
     def __init__(self, guest_list_file):
         self._guests = dict()
         self._relationships = defaultdict(lambda: 0)
-        for line in guest_list_file:
-            pass
+        input_grid = [l.split(',') for l in open(guest_list_file)]
+        names = [n for n in input_grid[self._INPUT_GRID_START_ROW] if n]
+        self._guests = dict((n, Guest(name=n)) for n in names)
+        for i in range(len(names)):
+            row = i + 1 + self._INPUT_GRID_START_ROW
+            assert names[i].strip() == input_grid[row][0].strip()
+            for j in range(i):
+                col = j + 1
+                weight = input_grid[row][col]
+                if weight:
+                    pair = frozenset([self._guests[names[i]], self._guests[names[j]]])
+                    assert pair not in self._relationships
+                    self._relationships[pair] = int(weight)
 
     def __len__(self):
         return len(self._guests)
@@ -20,14 +34,7 @@ class GuestList(object):
         return self._relationships
 
     def guests(self):
-        return self._guests.values()
+        return list(self._guests.values())
 
     def guest(self, name):
         return self._guests.get(name)
-
-    @staticmethod
-    def create_relationship(a, b, weight):
-        for this, other in [(a, b), (b, a)]:
-            if any(other in r for r in ._relationships):
-                raise Exception('%s already has relationship with %s ')
-        relationship = Relationship(self, other, weight)

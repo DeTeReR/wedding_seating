@@ -1,6 +1,6 @@
 import itertools
 import random
-from tables.table import Table
+from tables.table import Table, TableException
 
 
 class TablePlan(object):
@@ -17,8 +17,15 @@ class TablePlan(object):
 
         self._tables = set(Table(max_size=max_size) for max_size in max_sizes)
 
+    def __str__(self):
+        return 'TablePlan(_tables=%s)' % self._tables
+
     def seat_guests(self, guests):
-        raise NotImplementedError()
+        guest_index = 0
+        for table in self._tables:
+            for guest in guests[guest_index:guest_index + table.seat_count()]:
+                table.add_guest(guest)
+            guest_index += table.seat_count()
 
     def score(self, relationships):
         score = 0
@@ -28,13 +35,13 @@ class TablePlan(object):
         return score
 
     def state(self):
-        return (table.state() for table in self._tables)
+        return [table.state() for table in self._tables]
 
     def swap(self, count=1):
         for i in range(count):
             first_table, second_table = random.sample(self._tables, 2)
-            first_person = random.choice(first_table.guests())
-            second_person = random.choice(second_table.guests())
+            first_person = random.sample(first_table.guests(), 1)[0]
+            second_person = random.sample(second_table.guests(), 1)[0]
             first_table.remove_guest(first_person)
             second_table.remove_guest(second_person)
             first_table.add_guest(second_person)
@@ -46,8 +53,11 @@ class TablePlan(object):
         :return:
         """
         self._tables = set()
-        for table_state in tables_states:
-            table = Table(max_size=len(table_state))
-            for guest in table_state:
-                table.add_guest(guest)
-            self._tables.add(table)
+        try:
+            for table_state in tables_states:
+                table = Table(max_size=len(table_state))
+                for guest in table_state:
+                    table.add_guest(guest)
+                self._tables.add(table)
+        except Exception:
+            raise TableException('Failed to restore state!')
