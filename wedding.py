@@ -90,7 +90,7 @@ class Wedding(object):
         while repetition_count < failures_allowed:
             count += 1
             if count % 10000 == 0:
-                _LOGGER.info('Have done %s iterations.\nCurrent score is %s\nState is ?',
+                _LOGGER.info('Have done %s iterations.\nCurrent score is %s',
                              count, self._best_result.score)
 
             self._best_result.state = self._table_plan.state()
@@ -126,4 +126,9 @@ def main():
 
 if '__main__' == __name__:
     logging.basicConfig(level=logging.INFO)
+    stream_handler = logging.StreamHandler()
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    stream_handler.setFormatter(formatter)
+    root_logger = logging.getLogger()
+    root_logger.addHandler(stream_handler)
     main()
