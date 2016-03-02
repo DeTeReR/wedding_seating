@@ -1,5 +1,6 @@
 # wedding_seating
 Code for seating guests at my wedding.
+
 TODO:
 
 1) More complex score. Include loneliest person, lowest table.
