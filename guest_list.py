@@ -15,7 +15,7 @@ class GuestList(object):
         self._guests = dict()
         self._relationships = defaultdict(lambda: 0)
         input_grid = [l.split(',') for l in open(guest_list_file)]
-        names = [n for n in input_grid[self._INPUT_GRID_START_ROW] if n]
+        names = [n.strip() for n in input_grid[self._INPUT_GRID_START_ROW] if n]
         self._guests = dict((n, Guest(name=n)) for n in names)
         for i in range(len(names)):
             row = i + 1 + self._INPUT_GRID_START_ROW
