@@ -71,7 +71,7 @@ class TablePlan(object):
     def swap(self, relationships, count=1):
         for i in range(count):
             first_table, second_table = random.sample(self._tables, 2)
-            for number_to_pick in range(1, min(len(first_table.guests()), len(second_table.guests())) + 1):
+            for number_to_pick in range(1, min(len(first_table.guests()), len(second_table.guests()))):
                 first_table_people = _pick_at_least_n_from_table(relationships, first_table, number_to_pick)
                 second_table_people = _pick_exactly_n_from_table(relationships, second_table, len(first_table_people))
                 if second_table_people:

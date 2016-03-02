@@ -20,13 +20,13 @@ class Wedding(object):
         self._guest_list = GuestList(guest_file_name)
         self._table_plan = TablePlan(table_size=table_size, guest_count=len(self._guest_list))
         self._table_plan.seat_guests(self._guest_list.guests())
-        self._current_result = Result()
+        self._best_result = Result(state=self._table_plan.state())
 
     def __str__(self):
         return 'Wedding(_table_plan=%s, _guest_list=%s)' % (self._table_plan, self._guest_list)
 
     @staticmethod
-    def _load_previous_best_score(high_score_filename):
+    def _load_previous_result(high_score_filename):
         previous_result = None
         if high_score_filename:
             if not os.path.exists(high_score_filename):
@@ -47,61 +47,64 @@ class Wedding(object):
 
     @classmethod
     def _save_new_best_result(cls, high_score_filename, new_result):
-        previous_result = cls._load_previous_best_score(high_score_filename)
+        previous_result = cls._load_previous_result(high_score_filename)
         if previous_result is None or previous_result.score < new_result.score:
             with open(high_score_filename, 'wb') as high_score_file:
                 pickle.dump(new_result, high_score_file)
             _LOGGER.info('New best score:%s\nsaved in %s', new_result.score, high_score_filename)
 
     def do_seating(self, iterations=1000, high_score_filename=None):
-        previous_result = self._load_previous_best_score(high_score_filename)
-        self._current_result = previous_result if previous_result else Result(state=self._table_plan.state())
+        previous_result = self._load_previous_result(high_score_filename)
+        self._best_result = previous_result if previous_result else self._best_result
         atexit.register(self._save_new_best_result, **dict(high_score_filename=high_score_filename,
-                                                           new_result=self._current_result))
-        new_result = self._run_all_annealing(iterations=iterations)
+                                                           new_result=self._best_result))
+        self._run_annealing(iterations=iterations)
         self._save_new_best_result(high_score_filename=high_score_filename,
-                                   new_result=new_result)
-        return new_result
-
-    def _run_all_annealing(self, iterations):
-        return self._run_annealing(iterations=iterations)
+                                   new_result=self._best_result)
+        return self._best_result
 
     def _run_annealing(self, iterations):
-        if self._current_result:
+        if self._best_result:
             try:
-                self._table_plan.restore_state(self._current_result.state)
+                self._table_plan.restore_state(self._best_result.state)
             except TableException:
-                _LOGGER.exception('Failed to load state %s.', self._current_result.state)
+                _LOGGER.exception('Failed to load state %s.', self._best_result.state)
+
+        current_result = Result()
         for iteration in range(iterations):
             if iteration % 10000 == 0:
                 _LOGGER.info('Have done %s iterations.\nCurrent score is %s',
-                             iteration, self._current_result.score)
+                             iteration, current_result.score)
 
-            self._current_result.state = self._table_plan.state()
-            self._current_result.score = self._table_plan.score(self._guest_list.relationships())
+            current_result.state = self._table_plan.state()
+            current_result.score = self._table_plan.score(self._guest_list.relationships())
             self._table_plan.swap(relationships=self._guest_list.relationships())
             new_score = self._table_plan.score(self._guest_list.relationships())
 
-            if new_score >= self._current_result.score:
-                self._update_current_result(new_score)
+            if new_score > self._best_result.score:
+                _update_result(self._best_result, new_score, self._table_plan.state())
+
+            if new_score >= current_result.score:
+                _update_result(current_result, new_score, self._table_plan.state())
 
             else:
-                score_difference_multiplier = 1 - ((self._current_result.score - new_score) / self._current_result.score)
+                score_difference_multiplier = 1 - ((self._best_result.score - new_score) / self._best_result.score)
                 proportion_done = 1 - ((iterations - iteration) / iterations)
                 if random() < score_difference_multiplier * exp(-proportion_done * 5) * 0.01:
-                    self._update_current_result(new_score)
+                    _update_result(current_result, new_score, self._table_plan.state())
                 else:
-                    self._table_plan.restore_state(self._current_result.state)
+                    self._table_plan.restore_state(current_result.state)
 
         _LOGGER.info('Took %s steps in total\nscore:%s\nstate:%s',
-                     iterations, self._current_result.score, self._current_result.state)
+                     iterations, self._best_result.score, self._best_result.state)
 
-        return self._current_result
+        return self._best_result
 
-    def _update_current_result(self, new_score):
-        self._current_result.score = new_score
-        self._current_result.timestamp = datetime.datetime.utcnow()
-        self._current_result.state = self._table_plan.state()
+
+def _update_result(result, new_score, new_state):
+    result.score = new_score
+    result.timestamp = datetime.datetime.utcnow()
+    result.state = new_state
 
 
 def main():
