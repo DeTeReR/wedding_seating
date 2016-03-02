@@ -7,9 +7,32 @@ from tables.table import Table, TableException
 
 LOGGER = logging.getLogger(__name__)
 
+
 def get_tens(people, relationships, the_one):
     return frozenset([person for person in people if relationships[frozenset([the_one, person])] == 10] + [the_one])
 
+
+def _pick_exactly_n_from_table(relationships, table, number):
+        groups = set(key for key, value in itertools.groupby(
+            table.guests(),
+            partial(get_tens, table.guests(), relationships))
+        )
+        #group_lens = {group: len(group) for group in groups}
+        options = []
+        for i in range(1, number + 1):
+            options.extend([c for c in itertools.combinations(groups, i) if sum(len(g) for g in c) == number])
+        if not options:
+            return None
+        return set(list(itertools.chain(*random.sample(options, 1)[0])))
+
+
+def _pick_at_least_n_from_table(relationships, table, number):
+    population = table.guests()
+    chosen = set()
+    while len(chosen) < number:
+        person = random.sample(population=population - chosen, k=1)[0]
+        chosen.update(get_tens(table.guests(), relationships, person))
+    return chosen
 
 class TablePlan(object):
     def __init__(self, table_size=10, guest_count=130):
@@ -48,32 +71,23 @@ class TablePlan(object):
     def swap(self, relationships, count=1):
         for i in range(count):
             first_table, second_table = random.sample(self._tables, 2)
-            first_table_people = self._pick_at_least_one_from_table(relationships, first_table, 1)
-            second_table_people = set()
-            safety = 0
-            while len(first_table_people) != len(second_table_people):
-                second_table_people = self._pick_at_least_one_from_table(relationships, second_table, len(first_table_people))
-                safety += 1
-                if safety > 3:
-                    LOGGER.warning(
-                        'Dodgey swap, split up couples:\n%s\n%s',
-                        first_table.guests(),
-                        second_table.guests())
-                    second_table_people = list(second_table_people)[:len(first_table_people)]
+            for number_to_pick in range(1, min(len(first_table.guests()), len(second_table.guests())) + 1):
+                first_table_people = _pick_at_least_n_from_table(relationships, first_table, number_to_pick)
+                second_table_people = _pick_exactly_n_from_table(relationships, second_table, len(first_table_people))
+                if second_table_people:
+                    break
+            if not second_table_people:
+                LOGGER.warning(
+                    'Couldn\'t do the swap:%s from:\n%s\nto:\n%s',
+                    first_table_people,
+                    first_table,
+                    second_table)
+                continue
 
             first_table.remove_guests(first_table_people)
             second_table.remove_guests(second_table_people)
             first_table.add_guests(second_table_people)
             second_table.add_guests(first_table_people)
-
-    @staticmethod
-    def _pick_at_least_one_from_table(relationships, table):
-        first_person = random.sample(table.guests(), 1)[0]
-        return get_tens(table.guests(), relationships, first_person)
-
-    def _pick_exactly_n_from_table(self, relationships, table, number):
-        groups = itertools.groupby(table.guests(), partial(get_tens, table.guests(), relationships))
-        group_lens = {group:len(group) for group in groups}
 
     def restore_state(self, tables_states):
         """
