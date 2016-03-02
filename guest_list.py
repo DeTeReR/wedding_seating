@@ -1,6 +1,10 @@
 from collections import namedtuple, defaultdict
 
-Guest = namedtuple('Guest', ['name'])
+
+class Guest(namedtuple('Guest', ['name'])):
+    def __repr__(self):
+        return str(self.name)
+
 
 
 class GuestList(object):
