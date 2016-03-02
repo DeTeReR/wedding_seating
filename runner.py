@@ -9,7 +9,7 @@ def main():
                       )
     x = wedding.do_seating(
         high_score_filename='high_score',
-        iterations=100000,
+        iterations=3000000,
     )
     print(x)
 

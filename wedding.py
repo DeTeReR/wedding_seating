@@ -73,8 +73,8 @@ class Wedding(object):
         current_result = Result()
         for iteration in range(iterations):
             if iteration % 10000 == 0:
-                _LOGGER.info('Have done %s iterations.\nCurrent score is %s',
-                             iteration, current_result.score)
+                _LOGGER.info('Have done %s iterations.\nCurrent score is %s, best score is %s',
+                             iteration, current_result.score, self._best_result.score)
 
             current_result.state = self._table_plan.state()
             current_result.score = self._table_plan.score(self._guest_list.relationships())
