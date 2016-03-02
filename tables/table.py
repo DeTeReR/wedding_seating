@@ -13,6 +13,14 @@ class Table(object):
     def __str__(self):
         return 'Table(_max_size=%s, _guests=%s)' % (self._seat_count, self._guests)
 
+    def add_guests(self, guests):
+        for guest in guests:
+            self.add_guest(guest)
+
+    def remove_guests(self, guests):
+        for guest in guests:
+            self.remove_guest(guest)
+
     def add_guest(self, guest):
         if guest in self._guests:
             raise TableException('%s is already on this table!', guest.name)

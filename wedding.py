@@ -72,8 +72,6 @@ class Wedding(object):
                 self._table_plan.restore_state(self._current_result.state)
             except TableException:
                 _LOGGER.exception('Failed to load state %s.', self._current_result.state)
-        max_mult = 0
-        min_mult = 1
         for iteration in range(iterations):
             if iteration % 10000 == 0:
                 _LOGGER.info('Have done %s iterations.\nCurrent score is %s',
@@ -81,7 +79,7 @@ class Wedding(object):
 
             self._current_result.state = self._table_plan.state()
             self._current_result.score = self._table_plan.score(self._guest_list.relationships())
-            self._table_plan.swap()
+            self._table_plan.swap(relationships=self._guest_list.relationships())
             new_score = self._table_plan.score(self._guest_list.relationships())
 
             if new_score >= self._current_result.score:
@@ -94,8 +92,6 @@ class Wedding(object):
                     self._update_current_result(new_score)
                 else:
                     self._table_plan.restore_state(self._current_result.state)
-                max_mult = max(max_mult, score_difference_multiplier)
-                min_mult = min(min_mult, score_difference_multiplier)
 
         _LOGGER.info('Took %s steps in total\nscore:%s\nstate:%s',
                      iterations, self._current_result.score, self._current_result.state)
