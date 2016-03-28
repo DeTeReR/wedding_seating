@@ -6,7 +6,6 @@ class Guest(namedtuple('Guest', ['name'])):
         return str(self.name)
 
 
-
 class GuestList(object):
     _INPUT_GRID_START_ROW = 2
     _INPUT_GRID_START_COL = 0

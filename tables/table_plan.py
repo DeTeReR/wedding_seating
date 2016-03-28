@@ -1,8 +1,10 @@
 import itertools
 import logging
 import random
+from collections import defaultdict
 from functools import partial
 
+from tables.score import Score
 from tables.table import Table, TableException
 
 LOGGER = logging.getLogger(__name__)
@@ -60,11 +62,20 @@ class TablePlan(object):
             guest_index += table.seat_count()
 
     def score(self, relationships):
-        score = 0
+        total_score = 0
+        lowest_table_score = None
+        person_scores = defaultdict(int)
         for table in self._tables:
+            table_score = 0
             for pair_of_people in itertools.combinations(table.guests(), 2):
-                score += relationships[frozenset(pair_of_people)]
-        return score
+                pair_score = relationships[frozenset(pair_of_people)]
+                for person in pair_of_people:
+                    person_scores[person] += pair_score
+                table_score += pair_score
+            lowest_table_score = min(table_score, lowest_table_score if lowest_table_score is not None else table_score)
+            total_score += table_score
+        lowest_person_score = min(person_scores.values())
+        return Score(total=total_score, lowest_table_score=lowest_table_score, lowest_person_score=lowest_person_score)
 
     def state(self):
         return [table.state() for table in self._tables]
