@@ -75,7 +75,9 @@ class TablePlan(object):
             lowest_table_score = min(table_score, lowest_table_score if lowest_table_score is not None else table_score)
             total_score += table_score
         lowest_person_score = min(person_scores.values())
-        return Score(total=total_score, lowest_table_score=lowest_table_score, lowest_person_score=lowest_person_score)
+        return Score(total=total_score,
+                     lowest_table_score=lowest_table_score,
+                     lowest_person_score=lowest_person_score)
 
     def state(self):
         return [table.state() for table in self._tables]
