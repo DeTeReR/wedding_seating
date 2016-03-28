@@ -1,5 +1,6 @@
-from wedding import Wedding
 import logging
+
+from wedding import Wedding
 
 
 def main():

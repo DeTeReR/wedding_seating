@@ -48,12 +48,12 @@ class Score(object):
         return False
 
     def difference_multiplier(self, other):
-        '''
+        """
         Method to give a measure of how close two scores are.
         1: self == other
         0: other == 0
         >1: other > self
-        '''
+        """
         for self_score, other_score in self._scores_in_order(other):
             if self_score != other_score:
                 return _score_difference_multiplier(self_score, other_score)

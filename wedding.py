@@ -1,4 +1,6 @@
+import atexit
 import datetime
+import logging
 import os
 import pickle
 from math import exp
@@ -7,11 +9,8 @@ from random import random
 from guest_list import GuestList
 from parser import get_parser
 from result import Result
-from tables.score import Score
 from tables.table import TableException
 from tables.table_plan import TablePlan
-import atexit
-import logging
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -112,7 +111,6 @@ def main():
     kwargs = vars(get_parser().parse_args())
     wedding = Wedding(**kwargs)
     plan = wedding.do_seating(**kwargs)
-    from pprint import pprint as pp
     #pp(plan.state)
 
 
