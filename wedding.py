@@ -7,6 +7,7 @@ from random import random
 from guest_list import GuestList
 from parser import get_parser
 from result import Result
+from tables.score import Score
 from tables.table import TableException
 from tables.table_plan import TablePlan
 import atexit
@@ -88,7 +89,7 @@ class Wedding(object):
                 _update_result(current_result, new_score, self._table_plan.state())
 
             else:
-                score_difference_multiplier = 1 - ((self._best_result.score - new_score) / self._best_result.score)
+                score_difference_multiplier = self._best_result.score.difference_multiplier(new_score)
                 proportion_done = 1 - ((iterations - iteration) / iterations)
                 if random() < score_difference_multiplier * exp(-proportion_done * 5) * 0.01:
                     _update_result(current_result, new_score, self._table_plan.state())

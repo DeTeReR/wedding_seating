@@ -15,3 +15,5 @@ class TestScore(TestCase):
         self.assertTrue(
             Score(lowest_table_score=100, total=1, lowest_person_score=2) >
             Score(lowest_table_score=100, total=1, lowest_person_score=1))
+        self.assertFalse(
+            Score(lowest_table_score=2, total=1) < Score(lowest_table_score=1, total=2))
