@@ -11,6 +11,9 @@ class GuestList(object):
     _INPUT_GRID_START_COL = 0
 
     def __init__(self, guest_list_file):
+        """
+        Read the bottom triangle of the grid. Ignore the top half
+        """
         self._guests = dict()
         self._relationships = defaultdict(lambda: 0)
         input_grid = [l.split(',') for l in open(guest_list_file)]
