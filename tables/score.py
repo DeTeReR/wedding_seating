@@ -13,7 +13,7 @@ def _less_than(first, second):
 
 def _score_difference_multiplier(old, new):
     new = 0 if new is None else new
-    old = 1 if old is None else old
+    old = 1 if old is None or old == 0 else old
     return 1 - ((old - new) / old)
 
 

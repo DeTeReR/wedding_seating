@@ -6,6 +6,7 @@ from functools import partial
 
 from tables.score import Score
 from tables.table import Table, TableException
+from tables.wedding_state import WeddingState
 
 LOGGER = logging.getLogger(__name__)
 
@@ -74,13 +75,13 @@ class TablePlan(object):
                 table_score += pair_score
             lowest_table_score = min(table_score, lowest_table_score if lowest_table_score is not None else table_score)
             total_score += table_score
-        lowest_person_score = min(person_scores.values())
+        lowest_person_score = min(person_scores.values()) if person_scores else None
         return Score(total=total_score,
                      lowest_table_score=lowest_table_score,
                      lowest_person_score=lowest_person_score)
 
     def state(self):
-        return [table.state() for table in self._tables]
+        return  WeddingState([table.state() for table in self._tables])
 
     def swap(self, relationships, count=1):
         for i in range(count):
@@ -103,14 +104,14 @@ class TablePlan(object):
             first_table.add_guests(second_table_people)
             second_table.add_guests(first_table_people)
 
-    def restore_state(self, tables_states):
+    def restore_state(self, wedding_state):
         """
-        :param tables_states: tuple of tuples of guest names.
+        :param wedding_state: tuple of tuples of guest names.
         :return:
         """
         self._tables = set()
         try:
-            for table_state in tables_states:
+            for table_state in wedding_state:
                 table = Table(max_size=len(table_state))
                 for guest in table_state:
                     table.add_guest(guest)
