@@ -5,10 +5,15 @@ class TableException(Exception):
     pass
 
 
+class PrettyPrintSet(set):
+    def __repr__(self):
+        return '{%s}' % ', '.join(sorted(repr(x) for x in self))
+
+
 class Table(object):
     def __init__(self, max_size):
         self._seat_count = max_size
-        self._guests = set()
+        self._guests = PrettyPrintSet()
 
     def __str__(self):
         return 'Table(_max_size=%s, _guests=%s)' % (self._seat_count, self._guests)

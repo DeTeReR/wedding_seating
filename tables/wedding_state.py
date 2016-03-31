@@ -6,7 +6,7 @@ class WeddingState(object):
         return '%s(%s)' % (self.__class__.__name__, repr(self._table_states))
 
     def __str__(self):
-        return 'WeddingState(%s)' % '\n'.join([str(table_state) for table_state in self._table_states])
+        return 'WeddingState(%s)' % '\n'.join([repr(table_state) for table_state in self])
 
     def __iter__(self):
         for table_state in self._table_states:
