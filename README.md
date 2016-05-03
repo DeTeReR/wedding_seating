@@ -14,10 +14,15 @@ For me, the process of doing that made it clear that I was already aware of most
 There might be some value in this if there aren't obvious groupings of people. 
 Anyway, I did this for fun/interest/utility, so it doesn't matter. 
 
+## Usage
+```
+python wedding.py -g example_relationships.csv -ts 3 -i 3 -b example_high_score
+```
 
-TODO:
+Copy the layout in example_relationships.csv for your own guest relationships.
 
-0.1) Add example csv file. 
+
+# TODO:
 
 1) More complex score. Done (partially?)
 
