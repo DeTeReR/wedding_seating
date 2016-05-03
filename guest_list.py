@@ -2,45 +2,56 @@ from collections import namedtuple, defaultdict
 
 
 class Guest(namedtuple('Guest', ['name'])):
-    def __repr__(self):
-        return str(self.name)
+	def __repr__(self):
+		return str(self.name)
 
 
 class GuestList(object):
-    _INPUT_GRID_START_ROW = 2
-    _INPUT_GRID_START_COL = 0
+	_INPUT_GRID_START_ROW = 2
+	_INPUT_GRID_START_COL = 0
+	_NAME_COLUMN_INDEX = 1
 
-    def __init__(self, guest_list_file):
-        """
+	# So you can exclude people from the table seating (e.g. top table)
+	_INCLUDE_IN_TABLES_ROW = 0
+
+	def __init__(self, guest_list_file):
+		"""
         Read the bottom triangle of the grid. Ignore the top half
         """
-        self._guests = dict()
-        self._relationships = defaultdict(lambda: 0)
-        input_grid = [l.split(',') for l in open(guest_list_file)]
-        names = [n.strip() for n in input_grid[self._INPUT_GRID_START_ROW] if n]
-        self._guests = dict((n, Guest(name=n)) for n in names)
-        for i in range(len(names)):
-            row = i + 1 + self._INPUT_GRID_START_ROW
-            assert names[i].strip() == input_grid[row][0].strip()
-            for j in range(i):
-                col = j + 1
-                weight = input_grid[row][col]
-                if weight:
-                    pair = frozenset([self._guests[names[i]], self._guests[names[j]]])
-                    assert pair not in self._relationships
-                    self._relationships[pair] = int(weight)
+		self._guests = dict()
+		self._relationships = defaultdict(lambda: 0)
+		input_grid = [l.split(',') for l in open(guest_list_file)]
+		all_names = [n.strip() for n in input_grid[self._INPUT_GRID_START_ROW] if n]
+		self._guests = dict((n, Guest(name=n)) for n in all_names)
+		guest_names_to_seat = set()
+		for i in range(len(all_names)):
+			row_index = i + 1 + self._INPUT_GRID_START_ROW
+			row = input_grid[row_index]
+			guest_name = row[self._NAME_COLUMN_INDEX].strip()
+			assert all_names[i].strip() == guest_name
+			if not int(row[self._INCLUDE_IN_TABLES_ROW]):
+				continue
+			guest_names_to_seat.add(guest_name)
+			for j in range(i):
+				col_index = j + 1
+				weight = input_grid[row_index][col_index]
+				other_guest_name = all_names[j]
+				if weight and other_guest_name in guest_names_to_seat:
+					pair = frozenset([self._guests[guest_name], self._guests[other_guest_name]])
+					assert pair not in self._relationships
+					self._relationships[pair] = int(weight)
 
-    def __len__(self):
-        return len(self._guests)
+	def __len__(self):
+		return len(self._guests)
 
-    def relationship_weight(self, person_one, person_two):
-        return self._relationships[frozenset([person_one, person_two])]
+	def relationship_weight(self, person_one, person_two):
+		return self._relationships[frozenset([person_one, person_two])]
 
-    def relationships(self):
-        return self._relationships
+	def relationships(self):
+		return self._relationships
 
-    def guests(self):
-        return list(self._guests.values())
+	def guests(self):
+		return list(self._guests.values())
 
-    def guest(self, name):
-        return self._guests.get(name)
+	def guest(self, name):
+		return self._guests.get(name)
