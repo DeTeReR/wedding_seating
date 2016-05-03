@@ -1,5 +1,6 @@
-from wedding import Wedding
 import logging
+
+from wedding import Wedding
 
 
 def main():
@@ -8,7 +9,7 @@ def main():
         table_size=10,
                       )
     x = wedding.do_seating(
-        high_score_filename='high_score',
+        high_score_filename='high_score_new',
         iterations=3000000,
     )
     print(x)
