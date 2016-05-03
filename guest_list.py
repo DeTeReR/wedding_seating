@@ -22,7 +22,6 @@ class GuestList(object):
 		self._relationships = defaultdict(lambda: 0)
 		input_grid = [l.split(',') for l in open(guest_list_file)]
 		all_names = [n.strip() for n in input_grid[self._INPUT_GRID_START_ROW] if n]
-		self._guests = dict((n, Guest(name=n)) for n in all_names)
 		guest_names_to_seat = set()
 		for i in range(len(all_names)):
 			row_index = i + 1 + self._INPUT_GRID_START_ROW
@@ -31,12 +30,12 @@ class GuestList(object):
 			assert all_names[i].strip() == guest_name
 			if not int(row[self._INCLUDE_IN_TABLES_ROW]):
 				continue
-			guest_names_to_seat.add(guest_name)
+			self._guests[guest_name] = Guest(name=guest_name)
 			for j in range(i):
 				col_index = j + 1
 				weight = input_grid[row_index][col_index]
 				other_guest_name = all_names[j]
-				if weight and other_guest_name in guest_names_to_seat:
+				if weight and other_guest_name in self._guests:
 					pair = frozenset([self._guests[guest_name], self._guests[other_guest_name]])
 					assert pair not in self._relationships
 					self._relationships[pair] = int(weight)
