@@ -4,6 +4,8 @@ import random
 from collections import defaultdict
 from functools import partial
 
+import math
+
 from tables.score import Score
 from tables.table import Table, TableException
 from tables.wedding_state import WeddingState
@@ -40,7 +42,7 @@ def _pick_at_least_n_from_table(relationships, table, number):
 
 class TablePlan(object):
     def __init__(self, table_size=10, guest_count=130):
-        num_tables = (guest_count//table_size) + 1
+        num_tables = math.ceil(guest_count/table_size)
         max_sizes = [table_size] * num_tables
         capacity = table_size * num_tables
         seats_to_remove = capacity - guest_count

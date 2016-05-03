@@ -4,7 +4,10 @@ import logging
 import os
 import pickle
 from math import exp
+from pprint import pprint
 from random import random
+
+import math
 
 from guest_list import GuestList
 from parser import get_parser
@@ -53,7 +56,7 @@ class Wedding(object):
                 pickle.dump(new_result, high_score_file)
             _LOGGER.info('New best score:%s\nsaved in %s', new_result.score, high_score_filename)
 
-    def do_seating(self, iterations=1000, high_score_filename=None):
+    def do_seating(self, iterations=1000, high_score_filename=None, **_):
         previous_result = self._load_previous_result(high_score_filename)
         self._best_result = previous_result if previous_result else self._best_result
         atexit.register(self._save_new_best_result, **dict(high_score_filename=high_score_filename,
@@ -72,7 +75,7 @@ class Wedding(object):
 
         current_result = Result()
         for iteration in range(iterations):
-            if iteration % int(iterations / 100) == 0:
+            if iteration % math.ceil(iterations / 100) == 0:
                 _LOGGER.info('Have done %s iterations.\nCurrent score is %s, best score is %s',
                              iteration, current_result.score, self._best_result.score)
 
@@ -110,8 +113,8 @@ def _update_result(result, new_score, new_state):
 def main():
     kwargs = vars(get_parser().parse_args())
     wedding = Wedding(**kwargs)
-    plan = wedding.do_seating(**kwargs)
-    #pp(plan.state)
+    pprint(wedding.do_seating(**kwargs))
+
 
 
 if '__main__' == __name__:

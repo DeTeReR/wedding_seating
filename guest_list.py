@@ -32,7 +32,7 @@ class GuestList(object):
 				continue
 			self._guests[guest_name] = Guest(name=guest_name)
 			for j in range(i):
-				col_index = j + 1
+				col_index = j + self._NAME_COLUMN_INDEX + 1
 				weight = input_grid[row_index][col_index]
 				other_guest_name = all_names[j]
 				if weight and other_guest_name in self._guests:

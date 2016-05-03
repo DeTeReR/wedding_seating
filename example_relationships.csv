@@ -1,0 +1,10 @@
+Include in Planning,,,Couple = 10,Family/close friend = 3,Friendly = 2,Acquainted = 1,Don't know = 0,Dislike = -10,
+,,,,,,,,,
+,,AAA,BBB,CCC,DDD,EEE,FFF,GGG
+1,AAA,,,,,,,,
+1,BBB,1,,,,,,,
+1,CCC,1,1,,,,,,
+1,DDD,0,0,0,,,,,
+1,EEE,0,0,0,1,,,,
+1,FFF,0,0,0,1,1,,,
+0,GGG,0,0,0,1,1,1,,
