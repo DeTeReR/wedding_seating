@@ -27,7 +27,8 @@ class GuestList(object):
 			row_index = i + 1 + self._INPUT_GRID_START_ROW
 			row = input_grid[row_index]
 			guest_name = row[self._NAME_COLUMN_INDEX].strip()
-			assert all_names[i].strip() == guest_name
+			if not all_names[i].strip() == guest_name:
+				raise AssertionError('%s isn\'t the same as %s' % (all_names[i].strip(), guest_name))
 			if not int(row[self._INCLUDE_IN_TABLES_ROW]):
 				continue
 			self._guests[guest_name] = Guest(name=guest_name)
