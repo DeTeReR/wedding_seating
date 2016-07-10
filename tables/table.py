@@ -1,5 +1,10 @@
 import copy
 
+import itertools
+from collections import defaultdict
+
+from tables.score import Score
+
 
 class TableException(Exception):
 	pass
@@ -47,4 +52,18 @@ class Table(object):
 	def seat_count(self):
 		return self._seat_count
 
+	def score(self, relationships):
+		table_score = 0
+		person_scores = defaultdict(int)
+		for pair_of_people in itertools.combinations(self.guests(), 2):
+			pair_score = relationships[frozenset(pair_of_people)]
+			for person in pair_of_people:
+				person_scores[person] += pair_score
+			table_score += pair_score
 
+		lowest_person_score = min(person_scores.values()) if person_scores else None
+		return Score(
+			total=table_score,
+			lowest_table_score=table_score,
+			lowest_person_score=lowest_person_score
+		)

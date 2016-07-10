@@ -17,6 +17,15 @@ def _score_difference_multiplier(old, new):
 	return 1 - ((old - new) / old)
 
 
+def _none_aggregator_helper(first, second, func):
+	if first is not None and second is not None:
+		return func(first, second)
+	elif first is not None:
+		return first
+	else:
+		return second
+
+
 @total_ordering
 class Score(object):
 	_SCORE_PRECEDENTS = ('total', 'lowest_table_score', 'lowest_person_score')
@@ -36,6 +45,14 @@ class Score(object):
 
 	def __eq__(self, other):
 		return all(getattr(self, sub_score) == getattr(other, sub_score) for sub_score in self._SCORE_PRECEDENTS)
+
+	def __add__(self, other):
+		return Score(
+			total=_none_aggregator_helper(self.total, other.total, lambda x, y: x + y),
+			lowest_table_score=_none_aggregator_helper(self.lowest_table_score, other.lowest_table_score, min),
+			lowest_person_score=_none_aggregator_helper(self.lowest_person_score, other.lowest_person_score, min)
+		)
+
 
 	def _scores_in_order(self, other):
 		for sub_score in self._SCORE_PRECEDENTS:

@@ -1,10 +1,8 @@
 import itertools
 import logging
-import random
-from collections import defaultdict
-from functools import partial
-
 import math
+import random
+from functools import partial
 
 from tables.score import Score
 from tables.table import Table, TableException
@@ -65,25 +63,10 @@ class TablePlan(object):
             guest_index += table.seat_count()
 
     def score(self, relationships):
-        total_score = 0
-        lowest_table_score = None
-        person_scores = defaultdict(int)
-        for table in self._tables:
-            table_score = 0
-            for pair_of_people in itertools.combinations(table.guests(), 2):
-                pair_score = relationships[frozenset(pair_of_people)]
-                for person in pair_of_people:
-                    person_scores[person] += pair_score
-                table_score += pair_score
-            lowest_table_score = min(table_score, lowest_table_score if lowest_table_score is not None else table_score)
-            total_score += table_score
-        lowest_person_score = min(person_scores.values()) if person_scores else None
-        return Score(total=total_score,
-                     lowest_table_score=lowest_table_score,
-                     lowest_person_score=lowest_person_score)
+        return sum((table.score(relationships=relationships) for table in self._tables), Score())
 
     def state(self):
-        return  WeddingState([table.state() for table in self._tables])
+        return WeddingState([table.state() for table in self._tables])
 
     def swap(self, relationships, count=1):
         for i in range(count):
