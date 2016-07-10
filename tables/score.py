@@ -19,7 +19,7 @@ def _score_difference_multiplier(old, new):
 
 @total_ordering
 class Score(object):
-    _SCORE_PRECEDENTS = ('lowest_table_score', 'total', 'lowest_person_score')
+    _SCORE_PRECEDENTS = ('total', 'lowest_table_score', 'lowest_person_score')
 
     def __init__(self, total=None, lowest_table_score=None, lowest_person_score=None):
         self.total = total
@@ -27,8 +27,12 @@ class Score(object):
         self.lowest_person_score = lowest_person_score
 
     def __repr__(self):
-        return '%s(lowest_table_score=%s, total=%s, lowest_person_score=%s)' % \
-               tuple([self.__class__.__name__] + list(getattr(self, sub_score) for sub_score in self._SCORE_PRECEDENTS))
+        return '%s(%s, %s, %s)' % \
+               tuple(
+                   [self.__class__.__name__]
+                   +
+                   ['='.join([sub_score, str(getattr(self, sub_score))]) for sub_score in self._SCORE_PRECEDENTS]
+               )
 
     def __eq__(self, other):
         return all(getattr(self, sub_score) == getattr(other, sub_score) for sub_score in self._SCORE_PRECEDENTS)
