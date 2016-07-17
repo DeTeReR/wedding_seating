@@ -116,7 +116,6 @@ def main():
     pprint(wedding.do_seating(**kwargs))
 
 
-
 if '__main__' == __name__:
     logging.basicConfig(level=logging.INFO)
     stream_handler = logging.StreamHandler()
