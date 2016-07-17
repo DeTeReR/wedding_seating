@@ -117,10 +117,5 @@ def main():
 
 
 if '__main__' == __name__:
-    logging.basicConfig(level=logging.INFO)
-    stream_handler = logging.StreamHandler()
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    stream_handler.setFormatter(formatter)
-    root_logger = logging.getLogger()
-    root_logger.addHandler(stream_handler)
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     main()
